@@ -3,19 +3,21 @@ import sys
 import pdfplumber
 
 
-def get_gpa(text):
-    expr = r"([1-4](\.[0-9]{1,2}))?\/4(\.0)?"
-    matches = re.findall(expr, text)  # expr, replace, text
-    text = re.sub(expr, "", text)
+# matches with expr,
+def matchSub(expr, text):
+    matches = re.findall(expr, text)
+    cleaned = re.sub(expr, "", text)
+    # return the first match if it exists along with the cleaned text
+    return matches[0] if len(matches) else "", cleaned
 
-    # If I matched anything
-    if len(matches):
-        # combine all matched groups of the first occurence
-        return matches[0], text
-    return "", text
+
+def get_gpa(text):
+    expr = r"[1-4](?:\.[0-9]{1,2})\/4"
+    return matchSub(expr, text)
 
 
 # TODO: add other regex
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
