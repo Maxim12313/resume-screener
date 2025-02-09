@@ -37,7 +37,7 @@ def clean_resume(text: str):
     return text
 
 
-def train_save_knn():
+def train_knn():
     df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
     df["Clean"] = df["Resume"].apply(clean_resume)
@@ -66,22 +66,14 @@ def train_save_knn():
     model = KNeighborsClassifier()
     model.fit(X_train, y_train)
 
-    print(f"train accuracy {model.score(X_train, y_train)}")
-    print(f"test accuracy {model.score(X_test, y_test)}")
-    print(f"classifying {model}")
+    # print(f"train accuracy {model.score(X_train, y_train)}")
+    # print(f"test accuracy {model.score(X_test, y_test)}")
+    # print(f"classifying {model}")
+    #
+    # pred = model.predict(X_test)
+    # print(metrics.classification_report(y_test, pred, zero_division=True))
 
-    pred = model.predict(X_test)
-    print(metrics.classification_report(y_test, pred, zero_division=True))
-
-    # wb write binary data
-    with open("model.pickle", "wb") as file:
-        pickle.dump(model, file)
-
-    with open("encoder.pickle", "wb") as file:
-        pickle.dump(le, file)
-
-    with open("vectorizer.pickle", "wb") as file:
-        pickle.dump(vectorizer, file)
+    return model, le, vectorizer
 
 
 class ResumeKNN:
@@ -90,15 +82,7 @@ class ResumeKNN:
     vectorizer: TfidfVectorizer = None
 
     def __init__(self):
-        dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(dir, "model.pickle"), "rb") as file:
-            self.model = pickle.load(file)
-
-        with open(os.path.join(dir, "encoder.pickle"), "rb") as file:
-            self.encoder = pickle.load(file)
-
-        with open(os.path.join(dir, "vectorizer.pickle"), "rb") as file:
-            self.vectorizer = pickle.load(file)
+        self.model, self.encoder, self.vectorizer = train_knn()
 
     def get_categories(self):
         return self.encoder.classes_
@@ -152,6 +136,5 @@ def test():
 
 
 if __name__ == "__main__":
-    # get_job_weights("Data Science")
-    test()
-    # train_save_knn()
+    get_job_weights("Data Science")
+    # test()
