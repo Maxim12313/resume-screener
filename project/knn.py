@@ -40,8 +40,8 @@ def clean_resume(text: str):
 def train_knn():
     df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
-    df["Clean"] = df["Resume"].apply(clean_resume)
 
+    df["Clean"] = df["Resume"].apply(clean_resume)
     le = LabelEncoder()
     df["Category"] = le.fit_transform(df["Category"])
 
@@ -73,16 +73,17 @@ def train_knn():
     # pred = model.predict(X_test)
     # print(metrics.classification_report(y_test, pred, zero_division=True))
 
-    return model, le, vectorizer
+    return model, le, vectorizer, df
 
 
 class ResumeKNN:
     model: KNeighborsClassifier = None
     encoder: LabelEncoder = None
     vectorizer: TfidfVectorizer = None
+    df = None
 
     def __init__(self):
-        self.model, self.encoder, self.vectorizer = train_knn()
+        self.model, self.encoder, self.vectorizer, self.df = train_knn()
 
     def get_categories(self):
         return self.encoder.classes_
