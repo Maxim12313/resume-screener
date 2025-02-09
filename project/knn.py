@@ -1,6 +1,4 @@
 import pandas as pd
-import os
-import pickle
 import re
 import string
 from parser import get_details
@@ -9,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn import metrics
+from sklearn.metrics import classification_report
 
 
 def clean_data(df):
@@ -66,12 +64,12 @@ def train_knn():
     model = KNeighborsClassifier()
     model.fit(X_train, y_train)
 
-    # print(f"train accuracy {model.score(X_train, y_train)}")
-    # print(f"test accuracy {model.score(X_test, y_test)}")
-    # print(f"classifying {model}")
-    #
-    # pred = model.predict(X_test)
-    # print(metrics.classification_report(y_test, pred, zero_division=True))
+    print(f"train accuracy {model.score(X_train, y_train)}")
+    print(f"test accuracy {model.score(X_test, y_test)}")
+    print(f"classifying {model}")
+    
+    pred = model.predict(X_test)
+    print(classification_report(y_test, pred, zero_division=True))
 
     return model, le, vectorizer, df
 
@@ -137,5 +135,5 @@ def test():
 
 
 if __name__ == "__main__":
-    get_job_weights("Data Science")
-    # test()
+    # get_job_weights("Data Science")
+    test()
