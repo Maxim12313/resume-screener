@@ -1,7 +1,11 @@
 from collections import defaultdict
 import re
 import sys
-from utils import read_pdf
+import pdfplumber
+
+def read_pdf(name):
+    with pdfplumber.open(name) as pdf:
+        return pdf.pages[0].extract_text()
 
 
 # matches with expr,
@@ -10,10 +14,6 @@ def matchSub(expr, text):
     cleaned = re.sub(expr, "", text)
     # return the first match if it exists along with the cleaned text
     return matches[0] if len(matches) else "", cleaned
-
-
-# TODO: add other regex
-
 
 def get_gpa(text):
     expr = r"[1-4](?:\.[0-9]{1,2})\/4"
@@ -33,39 +33,27 @@ def get_details(text):
     return details, text
 
 
-SECTION_TITLES = [
-    "employment",
-    "education",
-    "experience",
-    "projects",
-    "skills",
-    "coursework",
-    "research",
-    "achievements",
-    "technologies",
-]
-
-
 # gives back the section title we're in now
 # if this isn't a section, return ""
-def section_title(line):
+def section_title(line, titles):
     words = line.lower().split()
     if len(words) > 2:
         return ""
     for word in words:
-        if word in SECTION_TITLES:
+        if word in titles:
             return word
     return ""
 
 
-def sections(lines):
+def sections(lines, titles):
     sectionData = defaultdict(list)
 
     section = ""
     for line in lines:
         if not len(line):
             continue
-        res = section_title(line)
+        line = line.lstrip()
+        res = section_title(line, titles)
         if res:
             section = res
         elif len(section):
@@ -74,9 +62,44 @@ def sections(lines):
     return sectionData
 
 
-def get_sections(text):
-    return sections(text.split("\n"))
+def get_resume_sections(text):
+    titles = [
+        "employment",
+        "education",
+        "experience",
+        "projects",
+        "skills",
+        "coursework",
+        "research",
+        "achievements",
+        "technologies",
+    ]
+    text = re.sub(r"http\S+", " ", text)
+    text = re.sub(r"[^\x00-\x7f]", " ", text)
+    return sections(text.split("\n"), titles)
 
+def get_job_sections(text):
+    titles = [
+        "about",
+        "description",
+        "responsibilities",
+        "requirements",
+        "benefits",
+        "1benefits",
+    ]
+    return sections(text.split("\n"), titles)
+
+def clean(text):
+    text = re.sub(r"http\S+", " ", text)
+    text = re.sub(r"[^\x00-\x7f]", " ", text)
+    return text
+
+def read_pdf(name):
+    with pdfplumber.open(name) as pdf:
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text();
+        return clean(text)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -84,7 +107,10 @@ if __name__ == "__main__":
         exit(1)
     name = sys.argv[1]
     text = read_pdf(name)
-    details, text = get_details(text)
-    sections = get_sections(text)
+    sections = get_job_sections(text)
+    for key in sections:
+        print(key)
+        print(sections[key])
+        print()
     # print(sections)
-    # print(details)
+

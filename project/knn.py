@@ -1,7 +1,6 @@
 import pandas as pd
 import re
-import string
-from parser import get_details
+from parser import clean
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -10,36 +9,24 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 
 
+
+def clean_text(text: str):
+    text = clean(text)
+    # remove extra whitespace
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
 def clean_data(df):
     df.drop_duplicates(subset=["Resume"], keep="first", inplace=True)
     df.reset_index(inplace=True, drop=True)
     return df
 
-
-def clean_resume(text: str):
-    details, text = get_details(text)
-
-    # clean links
-    text = re.sub(r"http\S+", " ", text)
-
-    # remove all punctuation
-    expr = re.escape(string.punctuation)
-    text = re.sub(r"[{}]".format(expr), " ", text)
-
-    # remove all non ascii
-    text = re.sub(r"[^\x00-\x7f]", " ", text)
-
-    # remove extra whitespace
-    text = re.sub(r"\s+", " ", text)
-
-    return text
-
-
 def train_knn():
     df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
 
-    df["Clean"] = df["Resume"].apply(clean_resume)
+    df["Clean"] = df["Resume"].apply(clean_text)
     le = LabelEncoder()
     df["Category"] = le.fit_transform(df["Category"])
 
@@ -93,7 +80,7 @@ class ResumeKNN:
             print(f"predict with {type(data)}")
             assert False
 
-        data = [clean_resume(x) for x in data]
+        data = [clean_text(x) for x in data]
         features = self.vectorizer.transform(data)
         pred = self.model.predict(features)
         return self.encoder.inverse_transform(pred)
@@ -102,7 +89,7 @@ class ResumeKNN:
         if not isinstance(data, list):
             data = [data]
 
-        data = [clean_resume(x) for x in data]
+        data = [clean_text(x) for x in data]
         features = self.vectorizer.transform(data)
         return self.model.predict_proba(features)
 
@@ -110,7 +97,7 @@ class ResumeKNN:
 def get_job_weights(job):
     df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
-    df["Clean"] = df["Resume"].apply(clean_resume)
+    df["Clean"] = df["Resume"].apply(clean_text)
     df = df[df["Category"] == job]
     sample = df["Clean"].to_list()
     knn = ResumeKNN()
@@ -127,7 +114,7 @@ def get_job_weights(job):
 def test():
     df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
-    df["Clean"] = df["Resume"].apply(clean_resume)
+    df["Clean"] = df["Resume"].apply(clean_text)
     sample = df["Clean"].sample(30).to_list()
     knn = ResumeKNN()
     print(knn.get_categories())
