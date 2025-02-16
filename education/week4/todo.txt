@@ -1,0 +1,8 @@
+1. make parser able to read in the sections of our structured job description pdfs
+
+2. 
+- (slowest great) compare the similarity of corresponding sections in a resume and the job description 
+   (experience + projects vs responsibilities etc)     
+- (fastest ok) compare similarity by vectorizing resume and job and using cosine similarity
+- (fastestest ?) look into keyterm extraction and how it could be used to compare similarity
+- (faster good) static embeddings? train on resume dataset, vectorize, and compare cosine similarity?
