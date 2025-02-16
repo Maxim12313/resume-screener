@@ -1,0 +1,1 @@
+Credit to https://github.com/srbhr/Resume-Matcher/blob/main/Data/JobDescription/job_desc_product_manager.pdf 
