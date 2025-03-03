@@ -94,6 +94,7 @@ def get_job_sections(text):
 def clean(text):
     text = re.sub(r"http\S+", " ", text)
     text = re.sub(r"[^\x00-\x7f]", " ", text)
+    text = re.sub(r"\n{2,}", "\n", text)
     return text
 
 
