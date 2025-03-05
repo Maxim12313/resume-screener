@@ -23,7 +23,7 @@ class Shared():
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Shared, cls).__new__(cls)
-            return cls.instance
+        return cls.instance
 
     def chunk(self, text: str):
         docs = self.splitter.create_documents(texts=[text])
