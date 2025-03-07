@@ -8,11 +8,11 @@ from queryMaker import QueryMaker
 queryMaker = QueryMaker()
 
 
-def render_top(top_k: List[Dict], key):
+def render_top(top_k: List[Dict], relevant: List[Dict], key):
     # Store expanded state only if not already present
 
     with st.expander("Retrival Details", expanded=True):
-        options = dict(
+        options1 = dict(
             {
                 # f"ID {record['source_id']} | Score: {round(record['score'], 3)}": record
                 f"ID {record['source_id']}": record
@@ -20,11 +20,26 @@ def render_top(top_k: List[Dict], key):
             }
         )
 
-        selected = st.selectbox(
-            "Select a retrieved resume:", list(options.keys()), key=key
+        options2 = dict(
+            {
+                # f"ID {record['source_id']} | Score: {round(record['score'], 3)}": record
+                f"ID {record['source_id']}": record
+                for record in relevant
+            }
         )
 
-        record = options[selected]
+        res = st.toggle("Relevant/All", key="c" + str(key))
+        selected = None
+        if res:
+            selected = st.selectbox(
+                "Select a retrieved resume:", list(options1.keys()), key="a" + str(key)
+            )
+        else:
+            selected = st.selectbox(
+                "Select a retrieved resume:", list(options2.keys()), key="b" + str(key)
+            )
+
+        record = options1[selected]  # options2 subset options1
         with st.container(height=400):
             st.markdown(record["resume"])
 
@@ -34,11 +49,8 @@ def respond(prompt):
     prev_relevant = (
         convo[-1]["relevant"] if len(convo) and "relevant" in convo[-1] else []
     )
+
     convo = [{"role": record["role"], "content": record["content"]} for record in convo]
-    print("convo!")
-    print(convo)
-    print("relevant!")
-    print(prev_relevant)
     return queryMaker.query(prompt, prev_relevant, convo)
 
 
@@ -52,8 +64,8 @@ with main.container():
     for i, msg in enumerate(st.session_state.messages):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
-            if "top_k" in msg:
-                render_top(msg["top_k"], i)
+            if msg["role"] == "assistant":
+                render_top(msg["top_k"], msg["relevant"], i)
 
 
 if prompt := st.chat_input("Try me!"):
@@ -69,8 +81,7 @@ if prompt := st.chat_input("Try me!"):
         relevant = [
             record for record in res["top_k"] if record["source_id"] in relevant_ids
         ]
-
-        render_top(res["top_k"], key)
+        render_top(res["top_k"], relevant, key)
         st.session_state.messages.append(
             {
                 "role": "assistant",

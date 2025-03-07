@@ -8,7 +8,7 @@ from parser import get_details, get_resume_sections, read_pdf
 st.title("resume screener")
 
 
-# text = 
+# text =
 # __.split("\n")
 
 # sections = dict({
@@ -27,11 +27,13 @@ def details_table(details):
     df = pd.DataFrame.from_dict(details, orient="index", columns=["value"])
     st.write(df)
 
+
 def sections_table(sections):
     sections = {key: "\n".join(sections[key]) for key in sections.keys()}
     df = df.style.set_properties(**{"white-space": "pre-wrap"})
     df = pd.DataFrame.from_dict(sections, orient="index", columns=["value"])
     st.table(df)
+
 
 file = st.file_uploader("Upload PDF Resume", type="pdf")
 if file:
