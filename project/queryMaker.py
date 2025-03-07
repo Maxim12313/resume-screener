@@ -17,6 +17,17 @@ def load_resumes(top_k: List[Dict]):
     return data
 
 
+def get_unique(top_k: List[Dict]):
+    res = []
+    seen = set()
+    for record in top_k:
+        if record["source_id"] in seen:
+            continue
+        res.append(record)
+        seen.add(record["source_id"])
+    return res
+
+
 class QueryMaker:
     system_prompt = None
     model = None
@@ -37,22 +48,36 @@ class QueryMaker:
             )
         )
 
-    def query(self, prompt: str):
+    def query(
+        self,
+        prompt: str,
+        prev_relevant: List[Dict],
+        prev_convo: List[Dict],
+    ):
         embedded = shared.embed_query(prompt)
-        top_k = get_top_k(embedded, self.k)
+
+        top_k = get_top_k(embedded, self.k) + prev_relevant
+        top_k = get_unique(top_k)
+
         context = load_resumes(top_k)
+
+        prompt += "Also at the end, return a JSON array of most relevant resume integer ids delimited by ``` on last 3 lines"
 
         query_prompt = f"""## Context:\n{context}\n\n## Query: {prompt}"""
 
+        messages = prev_convo
+        messages += [
+            {"role": "user", "content": query_prompt},  # task or main prompt
+            {"role": "system", "content": self.system_prompt},  # personality
+        ]
+
         completion = self.client.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "user", "content": query_prompt},  # task or main prompt
-                {"role": "system", "content": self.system_prompt},  # personality
-            ],
             temperature=self.temperature,  # how creative where 0 is deterministic
+            messages=messages,
             stream=True,
         )
+
         return {"text": completion, "top_k": top_k}
 
 

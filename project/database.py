@@ -92,6 +92,7 @@ def get_top_k(embedding, k=10):
                 (embedding, k * 2),
             ).fetchall()
             # anticipate duplicates, maintain k ret, low prob fail
+            # if add DESC get most different to show
 
             ids = set()
             ans = []
