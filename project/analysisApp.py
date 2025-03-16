@@ -1,26 +1,10 @@
 import io
-import pdfplumber
 import pandas as pd
 from streamlit_pdf_viewer import pdf_viewer
 import streamlit as st
-from parser import get_details, get_resume_sections, read_pdf
+from analysis.parser import get_details, get_resume_sections, read_pdf
 
 st.title("resume screener")
-
-
-# text =
-# __.split("\n")
-
-# sections = dict({
-#     key: ["word1", "word2"]
-#     key2: ["line1", "line2"]
-# })
-# sections = dict({
-#     key: "line1 \n line2"
-#     key2: "line1 \n line2"
-# })
-
-# sections = {key: "\n".join(sections[key]) for key in sections.keys()}
 
 
 def details_table(details):
@@ -29,7 +13,7 @@ def details_table(details):
 
 
 def sections_table(sections):
-    sections = {key: "\n".join(sections[key]) for key in sections.keys()}
+    df = {key: "\n".join(sections[key]) for key in sections.keys()}
     df = df.style.set_properties(**{"white-space": "pre-wrap"})
     df = pd.DataFrame.from_dict(sections, orient="index", columns=["value"])
     st.table(df)

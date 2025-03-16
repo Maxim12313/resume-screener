@@ -1,13 +1,12 @@
 import pandas as pd
 import re
-from parser import clean
+from analysis.parser import clean
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
-
 
 
 def clean_text(text: str):
@@ -21,6 +20,7 @@ def clean_data(df):
     df.drop_duplicates(subset=["Resume"], keep="first", inplace=True)
     df.reset_index(inplace=True, drop=True)
     return df
+
 
 def train_knn():
     df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
@@ -54,7 +54,7 @@ def train_knn():
     print(f"train accuracy {model.score(X_train, y_train)}")
     print(f"test accuracy {model.score(X_test, y_test)}")
     print(f"classifying {model}")
-    
+
     pred = model.predict(X_test)
     print(classification_report(y_test, pred, zero_division=True))
 

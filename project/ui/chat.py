@@ -1,10 +1,10 @@
 import json
 import streamlit as st
 from typing import List, Dict
-# from queryMaker import QueryMaker
+from rag.queryMaker import QueryMaker
 
 
-# queryMaker = QueryMaker()
+queryMaker = QueryMaker()
 
 
 def render_top(top_k: List[Dict], relevant: List[Dict], key):
@@ -56,14 +56,14 @@ def dummy_respond():
 
 
 def respond(prompt):
-    # convo = st.session_state.messages[:-1]  # just not last which is curr
-    # prev_relevant = (
-    #     convo[-1]["relevant"] if len(convo) and "relevant" in convo[-1] else []
-    # )
-    #
-    # convo = [{"role": record["role"], "content": record["content"]} for record in convo]
-    # return queryMaker.query(prompt, prev_relevant, convo)
-    return dummy_respond()
+    convo = st.session_state.messages[:-1]  # just not last which is curr
+    prev_relevant = (
+        convo[-1]["relevant"] if len(convo) and "relevant" in convo[-1] else []
+    )
+
+    convo = [{"role": record["role"], "content": record["content"]} for record in convo]
+    return queryMaker.query(prompt, prev_relevant, convo)
+    # return dummy_respond()
 
 
 def chat_logic(prompt):
@@ -104,6 +104,8 @@ def render_chat():
 def handle_chat():
     if "messages" not in st.session_state:
         st.session_state.messages = []
+
+    render_chat()
 
     if prompt := st.chat_input("Try me!"):
         chat_logic(prompt)

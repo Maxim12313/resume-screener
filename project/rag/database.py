@@ -1,9 +1,8 @@
 import pandas as pd
 from typing import List
 from datasets import Dataset
-from parser import clean
+from analysis.parser import clean
 
-import numpy as np
 import psycopg
 from pgvector.psycopg import register_vector
 from config import RESUME_DOC_TABLE, EMBEDDING_TABLE, EMBEDDING_LENGTH, Shared

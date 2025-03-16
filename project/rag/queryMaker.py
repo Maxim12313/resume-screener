@@ -1,6 +1,6 @@
 from typing import List, Dict
 from config import Shared
-from database import get_top_k
+from rag.database import get_top_k
 from dotenv import load_dotenv
 from openai import OpenAI
 
