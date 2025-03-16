@@ -15,7 +15,8 @@ def embed_chunks_map(sample):
 
 
 def process_data():
-    df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
+    # TODO: hardoded path, fix
+    df = pd.read_csv("../../data/UpdatedResumeDataSet.csv", encoding="utf-8")
     df.drop_duplicates(subset=["Resume"], keep="first", inplace=True)
     df.reset_index(inplace=True, drop=True)
     df["Clean"] = df["Resume"].apply(clean)

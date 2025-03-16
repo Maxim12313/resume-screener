@@ -23,7 +23,7 @@ def clean_data(df):
 
 
 def train_knn():
-    df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
+    df = pd.read_csv("../data/UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
 
     df["Clean"] = df["Resume"].apply(clean_text)
@@ -95,7 +95,7 @@ class ResumeKNN:
 
 
 def get_job_weights(job):
-    df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
+    df = pd.read_csv("../../data/UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
     df["Clean"] = df["Resume"].apply(clean_text)
     df = df[df["Category"] == job]
@@ -112,7 +112,7 @@ def get_job_weights(job):
 
 
 def test():
-    df = pd.read_csv("UpdatedResumeDataSet.csv", encoding="utf-8")
+    df = pd.read_csv("../../data/UpdatedResumeDataSet.csv", encoding="utf-8")
     df = clean_data(df)
     df["Clean"] = df["Resume"].apply(clean_text)
     sample = df["Clean"].sample(30).to_list()
@@ -121,6 +121,7 @@ def test():
     print(knn.predict(sample))
 
 
+# TODO: file paths now broken if call script standalone
 if __name__ == "__main__":
     # get_job_weights("Data Science")
     test()
