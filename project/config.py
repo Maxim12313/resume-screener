@@ -1,6 +1,8 @@
 from typing import List
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
+import os
 
 EMBEDDING_TABLE = "resume_embeddings"
 RESUME_DOC_TABLE = "resume_docs"
@@ -8,6 +10,15 @@ EMBEDDING_MODEL_NAME = "thenlper/gte-base"
 EMBEDDING_LENGTH = 768
 CHUNK_SIZE = 300
 CHUNK_OVERLAP = 50
+
+
+load_dotenv()
+
+db_name = os.getenv('DB_NAME')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
 
 
 class Shared():

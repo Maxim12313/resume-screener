@@ -1,14 +1,15 @@
 import pandas as pd
 from typing import List
 from datasets import Dataset
-from analysis.parser import clean
-
+from parser import clean
 import psycopg
+
 from pgvector.psycopg import register_vector
-from config import RESUME_DOC_TABLE, EMBEDDING_TABLE, EMBEDDING_LENGTH, Shared
+from config import RESUME_DOC_TABLE, EMBEDDING_TABLE, EMBEDDING_LENGTH
+from config import Shared, db_name, db_user, db_password, db_host, db_port 
+
 
 shared = Shared()
-
 
 def embed_chunks_map(sample):
     return {"Embeddings": shared.embed_documents(sample["Chunks"])}
@@ -29,7 +30,13 @@ def process_data():
 
 
 def embedding_db(df):
-    with psycopg.connect("user=postgres") as conn:
+    with psycopg.connect(
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        host=db_host,
+        port=db_port,
+    ) as conn:
         conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
         register_vector(conn)
         with conn.cursor() as cur:
@@ -61,7 +68,13 @@ def embedding_db(df):
 
 def doc_db(df):
     # going to ignore the embeddings
-    with psycopg.connect("user=postgres") as conn:
+    with psycopg.connect(
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        host=db_host,
+        port=db_port,
+    ) as conn:
         with conn.cursor() as cur:
             cur.execute(f"DROP TABLE IF EXISTS {RESUME_DOC_TABLE}")
             cur.execute(
@@ -84,7 +97,13 @@ def doc_db(df):
 
 
 def get_top_k(embedding, k=10):
-    with psycopg.connect("user=postgres") as conn:
+    with psycopg.connect(
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        host=db_host,
+        port=db_port,
+    ) as conn:
         with conn.cursor() as cur:
             res = cur.execute(
                 f"""SELECT *, embedding <-> %s::vector AS similarity
@@ -118,7 +137,13 @@ def add_resume(text):
     cleaned = clean(text)
     chunks = shared.chunk(cleaned)
     embeddings = shared.embed_documents(chunks)
-    with psycopg.connect("user=postgres") as conn:
+    with psycopg.connect(
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        host=db_host,
+        port=db_port,
+    ) as conn:
         with conn.cursor() as cur:
             length = cur.execute(
                 f"SELECT COUNT (*) FROM  {RESUME_DOC_TABLE}"
@@ -135,7 +160,13 @@ def add_resume(text):
 
 
 def retrieve_resumes(ids: List[int]):
-    with psycopg.connect("user=postgres") as conn:
+    with psycopg.connect(
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        host=db_host,
+        port=db_port,
+    ) as conn:
         with conn.cursor() as cur:
             data = []
             for id in ids:
